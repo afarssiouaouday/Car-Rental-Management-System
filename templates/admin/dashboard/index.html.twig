@@ -1,0 +1,261 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Tableau de Bord | Gestion de Location de Voitures{% endblock %}
+
+{% block stylesheets %}
+<link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+<style>
+    /* Variables CSS pour une meilleure maintenance */
+    :root {
+        --primary-color: #4361ee;
+        --success-color: #2ec4b6;
+        --warning-color: #ff9f1c;
+        --danger-color: #e71d36;
+        --card-shadow: 0 4px 25px rgba(0, 0, 0, 0.1);
+        --transition-speed: 0.3s;
+    }
+
+    /* Styles généraux */
+    body {
+        background-color: #f8f9fa;
+    }
+
+    .dashboard-container {
+        padding: 1rem;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    /* Style des cartes amélioré */
+    .dashboard-card {
+        transition: all var(--transition-speed) ease;
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+        height: 100%;
+    }
+
+    .dashboard-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--card-shadow);
+    }
+
+    /* Animation des cartes */
+    .card-animate {
+        animation: fadeInUp 0.6s ease-out;
+        animation-fill-mode: both;
+    }
+
+    /* Style des statistiques */
+    .stat-card {
+        position: relative;
+        padding: 1.5rem;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        height: 100%;
+        width: 4px;
+        background-color: rgba(255, 255, 255, 0.3);
+    }
+
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 1rem 0;
+    }
+
+    .stat-title {
+        font-size: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        opacity: 0.8;
+    }
+
+    .stat-icon {
+        position: absolute;
+        right: 1.5rem;
+        top: 1.5rem;
+        font-size: 2.5rem;
+        opacity: 0.2;
+    }
+
+    /* Style des boutons amélioré */
+    .btn-dashboard {
+        padding: 0.6rem 1.2rem;
+        border-radius: 8px;
+        font-weight: 500;
+        transition: all var(--transition-speed);
+        background-color: rgba(255, 255, 255, 0.1);
+        color: white;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .btn-dashboard:hover {
+        background-color: rgba(255, 255, 255, 0.2);
+        transform: translateX(5px);
+    }
+
+    /* Couleurs des cartes */
+    .bg-custom-primary { background-color: var(--primary-color); }
+    .bg-custom-success { background-color: var(--success-color); }
+    .bg-custom-warning { background-color: var(--warning-color); }
+    .bg-custom-danger { background-color: var(--danger-color); }
+
+    /* Media queries pour la responsive */
+    @media (max-width: 768px) {
+        .dashboard-container {
+            padding: 1rem;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="dashboard-container">
+    {# En-tête du tableau de bord #}
+    <header class="mb-4">
+        <h1 class="display-4 mb-3">Tableau de Bord</h1>
+        <p class="text-muted">Bienvenue sur votre espace d'administration</p>
+    </header>
+
+    {# Grille des statistiques #}
+    <div class="row g-4">
+    {# Voitures Totales #}
+    <div class="col-12 col-md-4">
+        <div class="dashboard-card card-animate" style="animation-delay: 0.1s">
+            <div class="stat-card bg-custom-primary text-white">
+                <div class="stat-icon">
+                    <i class="fas fa-car"></i>
+                </div>
+                <h6 class="stat-title">Voitures Totales</h6>
+                <div class="stat-value">{{ carsCount }}</div>
+                <div class="mt-3">
+                    <a href="{{ path('admin.car.show') }}" class="btn btn-dashboard">
+                        Détails <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Voitures Disponibles #}
+    <div class="col-12 col-md-4">
+        <div class="dashboard-card card-animate" style="animation-delay: 0.2s">
+            <div class="stat-card bg-custom-success text-white">
+                <div class="stat-icon">
+                    <i class="fas fa-car-side"></i>
+                </div>
+                <h6 class="stat-title">Disponibles</h6>
+                <div class="stat-value">{{ carAvailableCount }}</div>
+                <div class="mt-3">
+                    <a href="{{ path('admin.car.Avalaible.show') }}" class="btn btn-dashboard">
+                        Détails <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Maintenance #}
+    <div class="col-12 col-md-4">
+        <div class="dashboard-card card-animate" style="animation-delay: 0.3s">
+            <div class="stat-card bg-custom-warning text-white">
+                <div class="stat-icon">
+                    <i class="fas fa-tools"></i>
+                </div>
+                <h6 class="stat-title">En Maintenance</h6>
+                <div class="stat-value">{{ carsMaintenancesCount }}</div>
+                <div class="mt-3">
+                    <a href="{{ path('admin.car.inmaintenance') }}" class="btn btn-dashboard">
+                        Détails <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Réservations à venir #}
+    <div class="col-12 col-md-4">
+        <div class="dashboard-card card-animate" style="animation-delay: 0.4s">
+            <div class="stat-card bg-custom-primary text-white">
+                <div class="stat-icon">
+                    <i class="fas fa-calendar-plus"></i>
+                </div>
+                <h6 class="stat-title">Réservations à venir</h6>
+                <div class="stat-value">{{ upcomingBookingscount }}</div>
+                <div class="mt-3">
+                    <a href="{{ path('admin_booking_show_upcomingbookings') }}" class="btn btn-dashboard">
+                        Détails <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Réservations actuelles #}
+    <div class="col-12 col-md-4">
+        <div class="dashboard-card card-animate" style="animation-delay: 0.5s">
+            <div class="stat-card bg-custom-success text-white">
+                <div class="stat-icon">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <h6 class="stat-title">Réservations actuelles</h6>
+                <div class="stat-value">{{ nowBookingsCount }}</div>
+                <div class="mt-3">
+                    <a href="{{ path('admin_booking_show_nowbookings') }}" class="btn btn-dashboard">
+                        Détails <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Réservations passées #}
+    <div class="col-12 col-md-4">
+        <div class="dashboard-card card-animate" style="animation-delay: 0.6s">
+            <div class="stat-card bg-custom-danger text-white">
+                <div class="stat-icon">
+                    <i class="fas fa-calendar-times"></i>
+                </div>
+                <h6 class="stat-title">Réservations passées</h6>
+                <div class="stat-value">{{ pastBookingsCount }}</div>
+                <div class="mt-3">
+                    <a href="{{ path('admin_booking_show_pastbookings') }}" class="btn btn-dashboard">
+                        Détails <i class="fas fa-arrow-right ms-2"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+
+{% block javascripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Animation des cartes au chargement
+    const cards = document.querySelectorAll('.dashboard-card');
+    cards.forEach(card => {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    card.classList.add('animate_animated', 'animate_fadeInUp');
+                }
+            });
+        });
+        observer.observe(card);
+    });
+});
+</script>
+{% endblock %}
+
+{% endblock %}

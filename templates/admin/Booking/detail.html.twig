@@ -1,0 +1,239 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Détails de la Réservation #{{ booking.id }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .reservation-card {
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin: 2rem auto;
+            max-width: 800px;
+        }
+
+        .reservation-header {
+            background-color: #f8f9fa;
+            border-bottom: 1px solid #dee2e6;
+            border-radius: 8px 8px 0 0;
+            padding: 1.5rem;
+        }
+
+        .reservation-body {
+            padding: 2rem;
+        }
+
+        .reservation-section {
+            margin-bottom: 2rem;
+        }
+
+        .section-title {
+            color: #2c3e50;
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e9ecef;
+        }
+
+        .detail-grid {
+            display: flex;
+            gap: 2rem; /* Espacement entre les éléments */
+            align-items: center; /* Alignement vertical */
+        }
+
+        .detail-item {
+            flex: 1; /* Permet aux éléments de prendre une largeur égale */
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            padding: 1rem;
+        }
+
+        .detail-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .detail-value {
+            color: #212529;
+            font-weight: 500;
+        }
+
+        .car-image {
+            width: 100%;
+            max-width: 400px;
+            height: auto;
+            border-radius: 6px;
+            margin: 1rem 0;
+            object-fit: cover;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 0.875rem;
+        }
+
+        .status-confirmed { background-color: #d4edda; color: #155724; }
+        .status-pending { background-color: #fff3cd; color: #856404; }
+        .status-cancelled { background-color: #f8d7da; color: #721c24; }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.2s ease;
+        }
+
+        .btn-back {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-edit {
+            background-color: #007bff;
+            color: white;
+        }
+
+        .btn:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .duration-card {
+            background-color: #e9ecef;
+            border-radius: 6px;
+            padding: 1rem;
+            text-align: center;
+            margin: 1rem 0;
+        }
+
+        .duration-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="reservation-header">
+        <h2 class="mb-0">Réservation #{{ booking.id }}</h2>
+    </div>
+
+
+    <div class="reservation-body">
+
+        <!-- Statut -->
+        <div class="reservation-section">
+            <h3 class="section-title">Statut de la Réservation</h3>
+            <div class="detail-grid">
+                <!-- État actuel -->
+                <div class="detail-item">
+                    <div class="detail-label">État actuel</div>
+                    <div class="status-badge 
+                        {% if booking.status == 'Confirmée' %}status-confirmed
+                        {% elseif booking.status == 'En attente' %}status-pending
+                        {% else %}status-cancelled{% endif %}">
+                        {{ booking.status }}
+                    </div>
+                </div>
+
+                <!-- Réservation Terminée -->
+                <div class="detail-item">
+                    <div class="detail-label">Réservation Terminée</div>
+                    <div class="status-badge 
+                        {% if booking.EndDate|date('U') < 'now'|date('U') %}status-confirmed
+                        {% else %}status-pending{% endif %}">
+                        {% if booking.EndDate|date('U') < 'now'|date('U') %}
+                            Terminée
+                        {% else %}
+                            En cours
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Informations Client -->
+        <div class="reservation-section">
+            <h3 class="section-title">Informations Client</h3>
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <div class="detail-label">Nom du client</div>
+                    <div class="detail-value">{{ booking.Customer.name }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Téléphone</div>
+                    <div class="detail-value">{{ booking.Customer.phone }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Informations Véhicule -->
+        <div class="reservation-section">
+            <h3 class="section-title">Véhicule Réservé</h3>
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <div class="detail-label">Marque</div>
+                    <div class="detail-value">{{ booking.Car.brand }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Modèle</div>
+                    <div class="detail-value">{{ booking.Car.model }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Immatriculation</div>
+                    <div class="detail-value">{{ booking.Car.licensePlate }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Dates et Durée -->
+        <div class="reservation-section">
+            <h3 class="section-title">Période de Location</h3>
+            <div class="detail-grid">
+                <div class="detail-item">
+                    <div class="detail-label">Date de début</div>
+                    <div class="detail-value">{{ booking.StartDate|date('d/m/Y à H:i') }}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Date de fin</div>
+                    <div class="detail-value">{{ booking.EndDate|date('d/m/Y à H:i') }}</div>
+                </div>
+            </div>
+            <div class="duration-card">
+                <div class="detail-label">Durée totale</div>
+                <div class="duration-value">
+                    {% set duration = booking.StartDate|date('U') - booking.EndDate|date('U') %}
+                    {% set days = (duration / 86400)|abs|round %}
+                    {{ days }} jour{% if days > 1 %}s{% endif %}
+                </div>
+            </div>
+        </div>
+
+        
+
+        <!-- Actions -->
+        <div class="action-buttons">
+            <a href="{{ path('admin_booking_show') }}" class="btn btn-back">
+                Retour à la liste
+            </a>
+            <a href="{{ path('admin_booking_edit', {'id': booking.id}) }}" class="btn btn-edit">
+                Modifier la réservation
+            </a>
+        </div>
+    </div>
+{% endblock %}

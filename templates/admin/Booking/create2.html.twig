@@ -1,0 +1,12 @@
+{% extends 'admin/base.html.twig' %}
+{% block title %}Créer une nouvelle recette{% endblock %}
+{% block body %}
+    <h1>Créer une réservation</h1>
+    <p>Voiture sélectionnée : {{ car.model }}</p>
+    <p>Date de début : {{ dateStart }}</p>
+    <p>Date de fin : {{ dateEnd }}</p>
+
+    {{ form_start(form) }}
+        {{ form_widget(form) }}
+    {{ form_end(form) }}
+{% endblock %}

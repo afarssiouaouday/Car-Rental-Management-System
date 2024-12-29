@@ -1,0 +1,240 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Détails de l'Entretien - {{ carMaintenance.Car.model }}{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .maintenance-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            margin: 2rem auto;
+            max-width: 800px;
+        }
+
+        .maintenance-header {
+            background: linear-gradient(135deg, #2c3e50, #3498db);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px 12px 0 0;
+            position: relative;
+        }
+
+        .status-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 500;
+            text-transform: uppercase;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+        }
+
+        .maintenance-body {
+            padding: 2rem;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .info-item {
+            background: #f8f9fa;
+            padding: 1rem;
+            border-radius: 8px;
+            transition: transform 0.2s ease;
+        }
+
+        .info-item:hover {
+            transform: translateY(-2px);
+        }
+
+        .info-label {
+            color: #6c757d;
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .info-value {
+            color: #2c3e50;
+            font-weight: 500;
+            font-size: 1.1rem;
+        }
+
+        .car-image-container {
+            position: relative;
+            margin: 2rem 0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .car-image {
+            width: 100%;
+            height: auto;
+            object-fit: cover;
+            border-radius: 8px;
+            transition: transform 0.3s ease;
+        }
+
+        .car-image:hover {
+            transform: scale(1.02);
+        }
+
+        .actions-container {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e9ecef;
+        }
+
+        .btn-action {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .btn-back {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .btn-edit {
+            background-color: #3498db;
+            color: white;
+        }
+
+        .btn-action:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            opacity: 0.9;
+            color: white;
+        }
+
+        .description-box {
+            background: #f8f9fa;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin: 1.5rem 0;
+            border-left: 4px solid #3498db;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+            <div class="maintenance-header">
+                <h2 class="mb-0">
+                    <i class="fas fa-tools me-2"></i>
+                    Détails de l'Entretien
+                </h2>
+                <span class="status-badge
+                    {% if carMaintenance.status == 'Terminé' %}bg-success
+                    {% elseif carMaintenance.status == 'En cours' %}bg-warning
+                    {% else %}bg-secondary{% endif %}">
+                    <i class="fas fa-{% if carMaintenance.status == 'Terminé' %}check-circle
+                        {% elseif carMaintenance.status == 'En cours' %}clock
+                        {% else %}info-circle{% endif %} me-1"></i>
+                    {{ carMaintenance.status }}
+                </span>
+            </div>
+
+            <div class="maintenance-body">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-car me-1"></i> Véhicule
+                        </div>
+                        <div class="info-value">
+                            {{ carMaintenance.Car.brand }} {{ carMaintenance.Car.model }}
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-calendar me-1"></i> Date d'Entretien
+                        </div>
+                        <div class="info-value">
+                            {{ carMaintenance.maintenancedate|date('d/m/Y à H:i') }}
+                        </div>
+                    </div>
+
+                    <div class="info-item">
+                        <div class="info-label">
+                            <i class="fas fa-money-bill-wave me-1"></i> Coût
+                        </div>
+                        <div class="info-value">
+                            {{ carMaintenance.cost|number_format(2, ',', ' ') }} DH
+                        </div>
+                    </div>
+                </div>
+
+                <div class="description-box">
+                    <h5 class="mb-3">
+                        <i class="fas fa-clipboard-list me-2"></i>
+                        Description des Travaux
+                    </h5>
+                    <p class="mb-0">{{ carMaintenance.description }}</p>
+                </div>
+
+                <div class="car-image-container">
+                    <img src="{{ asset('uploads/images/' ~ carMaintenance.Car.imageName) }}"
+                         alt="Image de {{ carMaintenance.Car.brand }} {{ carMaintenance.Car.model }}"
+                         class="car-image"
+                         loading="lazy"
+                         style="width: 400px;">
+                </div>
+
+                <div class="actions-container">
+                    <a href="{{ path('admin.carmaintenance.show') }}" 
+                       class="btn-action btn-back">
+                        <i class="fas fa-arrow-left"></i>
+                        Retour à la liste
+                    </a>
+                    
+                    <a href="{{ path('admin.carmaintenance.edit', {id: carMaintenance.id}) }}" 
+                       class="btn-action btn-edit">
+                        <i class="fas fa-edit"></i>
+                        Modifier l'entretien
+                    </a>
+                </div>
+            </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animation d'entrée pour les éléments de la grille
+            const infoItems = document.querySelectorAll('.info-item');
+            infoItems.forEach((item, index) => {
+                item.style.opacity = '0';
+                item.style.transform = 'translateY(20px)';
+                setTimeout(() => {
+                    item.style.transition = 'all 0.5s ease';
+                    item.style.opacity = '1';
+                    item.style.transform = 'translateY(0)';
+                }, 100 * index);
+            });
+
+            // Gestion du zoom de l'image
+            const carImage = document.querySelector('.car-image');
+            carImage.addEventListener('click', function() {
+                this.classList.toggle('zoomed');
+            });
+        });
+    </script>
+{% endblock %}

@@ -1,0 +1,238 @@
+{# templates/admin/customer/detail.html.twig #}
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Détails du Client - {{ customer.name }}{% endblock %}
+
+{# Définition des styles personnalisés #}
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .customer-info-label { width: 150px; font-weight: 600; }
+        .reservation-history { max-height: 500px; overflow-y: auto; }
+        .status-badge { font-size: 0.9em; padding: 8px 12px; }
+        .customer-actions { position: sticky; bottom: 0; background: white; padding: 1rem; box-shadow: 0 -2px 10px rgba(0,0,0,0.1); }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="container-fluid py-4">
+        {# En-tête avec actions rapides #}
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="h3 text-primary">
+                <i class="fas fa-user-circle me-2"></i>
+                Détails du Client - {{ customer.name }}
+            </h1>
+            <div class="action-buttons">
+                <a href="{{ path('admin.customer.edit', {id: customer.id}) }}" class="btn btn-warning">
+                    <i class="fas fa-edit me-1"></i>Modifier
+                </a>
+                <button type="button" class="btn btn-danger ms-2" data-bs-toggle="modal" data-bs-target="#deleteCustomerModal">
+                    <i class="fas fa-trash-alt me-1"></i>Supprimer
+                </button>
+            </div>
+        </div>
+
+        <div class="row">
+            {# Informations client #}
+            <div class="col-md-4">
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-primary text-white d-flex align-items-center">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <span>Informations Générales</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="d-flex mb-3">
+                            <div class="customer-info-label">Nom complet</div>
+                            <div>{{ customer.name }}</div>
+                        </div>
+                        <div class="d-flex mb-3">
+                            <div class="customer-info-label">CIN</div>
+                            <div>{{ customer.cin }}</div>
+                        </div>
+                        <div class="d-flex mb-3">
+                            <div class="customer-info-label">Adresse</div>
+                            <div>
+                                {{ customer.address }}<br>
+                                {{ customer.city }}
+                            </div>
+                        </div>
+                        <div class="d-flex mb-3">
+                            <div class="customer-info-label">Téléphone</div>
+                            <div>
+                                <a href="tel:{{ customer.phone }}" class="text-decoration-none">
+                                    <i class="fas fa-phone-alt me-1"></i>
+                                    {{ customer.phone }}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {# Statistiques client #}
+                <div class="card border-0 shadow-sm mb-4">
+                    <div class="card-header bg-success text-white">
+                        <i class="fas fa-chart-bar me-2"></i>
+                        Statistiques
+                    </div>
+                    <div class="card-body">
+                        <div class="row text-center">
+                            <div class="col-6 mb-3">
+                                <div class="h3 mb-0">{{ reservations|length }}</div>
+                                <div class="text-muted small">Réservations totales</div>
+                            </div>
+                            <div class="col-6 mb-3">
+                                <div class="h3 mb-0">
+                                    {{ reservations|filter(r => r.status == 'confirmee')|length }}
+                                </div>
+                                <div class="text-muted small">Réservations confirmées</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {# Historique des réservations #}
+            <div class="col-md-8">
+                <div class="card border-0 shadow-sm">
+                    <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                        <div>
+                            <i class="fas fa-history me-2"></i>
+                            Historique des Réservations
+                        </div>
+                    </div>
+                    <div class="card-body reservation-history">
+                        {% if reservations is not empty %}
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Voiture</th>
+                                        <th>Période</th>
+                                        <th>Statut</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for reservation in reservations %}
+                                        <tr>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <div>
+                                                        <div class="fw-bold">{{ reservation.car.brand }}</div>
+                                                        <div class="text-muted small">{{ reservation.car.model }}</div>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div>{{ reservation.startDate|date('d/m/Y') }}</div>
+                                                <div class="text-muted small">
+                                                    au {{ reservation.endDate|date('d/m/Y') }}
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span class="badge status-badge rounded-pill
+                                                    {% if reservation.status == 'confirmée' %}bg-success
+                                                    {% elseif reservation.status == 'annulée' %}bg-danger
+                                                    {% elseif reservation.status == 'en_attente' %}bg-warning
+                                                    {% else %}bg-secondary
+                                                    {% endif %}">
+                                                    {{ reservation.status|capitalize }}
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <div class="btn-group btn-group-sm">
+                                                    <a href="{{ path('admin_booking_edit', {id: reservation.id}) }}"
+                                                       class="btn btn-outline-primary">
+                                                        <i class="fas fa-edit"></i>
+                                                    </a>
+                                                    <button type="button" 
+                                                            class="btn btn-outline-danger"
+                                                            data-bs-toggle="modal"
+                                                            data-bs-target="#deleteReservationModal{{ reservation.id }}">
+                                                        <i class="fas fa-trash-alt"></i>
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        {% else %}
+                            <div class="text-center py-5">
+                                <i class="fas fa-calendar-times text-muted mb-3" style="font-size: 3rem;"></i>
+                                <p class="text-muted mb-0">Aucune réservation trouvée pour ce client.</p>
+                                </a>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# Barre d'actions fixe en bas #}
+        <div class="customer-actions mt-4 text-center">
+            <a href="{{ path('admin.customer.show') }}" class="btn btn-secondary me-2">
+                <i class="fas fa-arrow-left me-1"></i>Retour à la liste
+            </a>
+            <a href="{{ path('admin.customer.edit', {id: customer.id}) }}" class="btn btn-warning me-2">
+                <i class="fas fa-edit me-1"></i>Modifier le client
+            </a>
+        </div>
+    </div>
+
+    {# Modal de confirmation de suppression du client #}
+    <div class="modal fade" id="deleteCustomerModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title">Confirmation de suppression</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Êtes-vous sûr de vouloir supprimer le client <strong>{{ customer.name }}</strong> ?</p>
+                    <p class="text-danger mb-0">
+                        <i class="fas fa-exclamation-triangle me-1"></i>
+                        Cette action est irréversible.
+                    </p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <form action="{{ path('admin.customer.delete', {id: customer.id}) }}" method="POST" class="d-inline">
+                        <input type="hidden" name="_method" value="DELETE">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ customer.id) }}">
+                        <button type="submit" class="btn btn-danger">Confirmer la suppression</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Modals de confirmation de suppression pour chaque réservation #}
+    {% for reservation in reservations %}
+        <div class="modal fade" id="deleteReservationModal{{ reservation.id }}" tabindex="-1">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header bg-danger text-white">
+                        <h5 class="modal-title">Confirmation de suppression</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <p>Êtes-vous sûr de vouloir supprimer cette réservation ?</p>
+                        <div class="alert alert-warning">
+                            <strong>Détails de la réservation :</strong><br>
+                            Voiture : {{ reservation.car.brand }} {{ reservation.car.model }}<br>
+                            Date : {{ reservation.startDate|date('d/m/Y') }}
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                        <form action="{{ path('admin_booking_delete', {id: reservation.id}) }}" method="POST">
+                            <input type="hidden" name="_method" value="DELETE">
+                            <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ reservation.id) }}">
+                            <button type="submit" class="btn btn-danger">Confirmer la suppression</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+{% endblock %}

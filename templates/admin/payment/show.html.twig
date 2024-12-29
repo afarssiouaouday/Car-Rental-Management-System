@@ -1,0 +1,40 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Tableau de Bord - Gestion de Location de Voitures{% endblock %}
+
+{% block body %}
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 style="color: #2c3e50;">Liste des Paiements</h1>
+    </div>
+
+    {% if payemnts is empty %}
+        <p class="text-center mt-5 text-muted">
+            Aucun paiement trouvé.
+        </p>
+    {% else %}
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered table-hover align-middle text-center">
+                <thead class="table-dark">
+                    <tr>
+                        <th>Client</th>
+                        <th>Montant</th>
+                        <th>Montant Payé</th>
+                        <th>Créé Le</th>
+                        <th>Mis À Jour Le</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for payemnt in payemnts %}
+                        <tr>
+                            <td>{{ payemnt.booking.customer.name }}</td>
+                            <td>{{ payemnt.amount }} DH</td>
+                            <td>{{ payemnt.amountpaid }} DH</td>
+                            <td>{{ payemnt.createdat | date('Y-m-d H:i') }}</td>
+                            <td>{{ payemnt.updatedat | date('Y-m-d H:i') }}</td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+{% endblock %}

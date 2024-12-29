@@ -1,0 +1,175 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}Choisir une réservation{% endblock %}
+
+{% block body %}
+    <div class="reservation-container">
+        <h1>Choisir une réservation</h1>
+
+        <form method="get" action="{{ path('admin_booking_choosereservation') }}" class="reservation-form">
+            <div class="form-group">
+                <label for="start_date">Date de début</label>
+                <input type="date" id="start_date" name="start_date" required class="form-control">
+            </div>
+
+            <div class="form-group">
+                <label for="end_date">Date de fin</label>
+                <input type="date" id="end_date" name="end_date"  required class="form-control">
+            </div>
+
+            <button type="submit" class="btn-submit">Vérifier les voitures disponibles</button>
+        </form>
+
+        
+        {% if availableCars is not empty %}
+            <h2>Voitures disponibles du {{ startDate|date('d/m/Y') }} au {{ endDate|date('d/m/Y') }}</h2>
+            <ul class="car-list">
+                {% for car in availableCars %}
+                    <li class="car-item">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <strong>{{ car.model }}</strong> - {{ car.price }}DH/jour
+                                <br>
+                                <a href="{{ path('admin_booking_creer_reservation', {
+                                    carId: car.id,
+                                    start: startDate|date('Y-m-d'),
+                                    end: endDate|date('Y-m-d')
+                                }) }}" class="btn btn-primary">
+                                    Réserver 
+                                </a>
+                            </div>
+                            <div>
+                                <img src="{{ asset('uploads/images/' ~ car.imageName) }}" alt="Car Image" class="img-thumbnail" style="width: 100px;">
+                            </div>
+                        </div>
+
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>Aucune voiture disponible pour cette période.</p>
+        {% endif %}
+    </div>
+
+    <style>
+        /* Container principal */
+        .reservation-container {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            font-family: 'Arial', sans-serif;
+        }
+
+        /* Titre principal */
+        h1 {
+            text-align: center;
+            font-size: 28px;
+            color: #333;
+            margin-bottom: 30px;
+        }
+
+        /* Formulaire de réservation */
+        .reservation-form {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Groupes de formulaire */
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-group label {
+            font-size: 16px;
+            color: #333;
+            margin-bottom: 8px;
+        }
+
+        .form-control {
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: #007bff;
+            outline: none;
+        }
+
+        /* Bouton de soumission */
+        .btn-submit {
+            padding: 12px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-submit:hover {
+            background-color: #0056b3;
+        }
+
+        /* Alertes d'erreur */
+        .alert {
+            padding: 15px;
+            background-color: #f8d7da;
+            color: #721c24;
+            border-radius: 5px;
+            margin-top: 20px;
+            font-size: 16px;
+        }
+
+        /* Liste des voitures */
+        .car-list {
+            list-style-type: none;
+            padding: 0;
+            margin-top: 30px;
+        }
+
+        .car-item {
+            background-color: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .car-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .car-item strong {
+            font-size: 18px;
+            color: #333;
+        }
+
+        .car-item small {
+            color: #888;
+        }
+
+        /* Texte et alignement */
+        h2 {
+            font-size: 22px;
+            color: #333;
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        p {
+            text-align: center;
+            color: #888;
+        }
+    </style>
+{% endblock %}

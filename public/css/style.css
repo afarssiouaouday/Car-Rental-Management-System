@@ -1,0 +1,26 @@
+.green { background-color: #28a745; } 
+.blue-light { background-color: #17a2b8; } 
+.orange { background-color: #fd7e14; } 
+.yellow { background-color: #ffc107; } 
+.cardflex{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-content: center;
+    text-align: center;
+}
+.text-count{
+    font-size: 20px;
+    font-weight: bold;
+}
+.voir{
+    font-size: 25px;
+    transition: 2s;
+    color: white;
+}
+.voir:hover{
+    color: black;
+}
+.center{
+    align-items: center;
+}

@@ -1,0 +1,149 @@
+{% extends 'admin/base.html.twig' %}
+
+{% block title %}{{ car.brand }} {{ car.model }} - Détails du Véhicule{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .car-details-container {
+            padding: 2rem;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .car-image {
+            max-width: 400px;
+            width: 100%;
+            height: auto;
+            border-radius: 4px;
+            margin-bottom: 2rem;
+        }
+        
+        .car-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .info-group {
+            margin-bottom: 1rem;
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        
+        .status-disponible { background: #e3fcef; color: #0d6832; }
+        .status-loue { background: #fff4e5; color: #945700; }
+        .status-maintenance { background: #ffe5e5; color: #c92a2a; }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="car-details-container">
+        {# Fil d'Ariane #}
+        <nav aria-label="breadcrumb" class="mb-4">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ path('admin_dashboard') }}">Tableau de bord</a></li>
+                <li class="breadcrumb-item"><a href="{{ path('admin.car.show') }}">Véhicules</a></li>
+                <li class="breadcrumb-item active">{{ car.brand }} {{ car.model }}</li>
+            </ol>
+        </nav>
+
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1 class="mb-0">{{ car.brand }} {{ car.model }}</h1>
+            <div class="btn-group">
+                <a href="{{ path('admin.car.edit', {id: car.id}) }}" class="btn btn-primary">
+                    <i class="fas fa-edit"></i> Modifier
+                </a>
+                <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteCarModal">
+                    <i class="fas fa-trash"></i> Supprimer
+                </button>
+            </div>
+        </div>
+
+        {% if car.imageName %}
+            <img src="{{ asset('uploads/images/' ~ car.imageName) }}" 
+                 alt="{{ car.brand }} {{ car.model }}" 
+                 class="car-image">
+        {% else %}
+            <div class="alert alert-info">Aucune image disponible</div>
+        {% endif %}
+
+        <div class="car-info">
+            <div class="info-section">
+                <h2 class="h4 mb-3">Informations générales</h2>
+                <div class="info-group">
+                    <label class="fw-bold">Marque :</label>
+                    <span>{{ car.brand }}</span>
+                </div>
+                <div class="info-group">
+                    <label class="fw-bold">Modèle :</label>
+                    <span>{{ car.model }}</span>
+                </div>
+                <div class="info-group">
+                    <label class="fw-bold">Année :</label>
+                    <span>{{ car.year }}</span>
+                </div>
+                <div class="info-group">
+                    <label class="fw-bold">Matricule :</label>
+                    <span>{{ car.licenseplate }}</span>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <h2 class="h4 mb-3">Caractéristiques techniques</h2>
+                <div class="info-group">
+                    <label class="fw-bold">Type de carburant :</label>
+                    <span>{{ car.FuelType }}</span>
+                </div>
+                <div class="info-group">
+                    <label class="fw-bold">Statut :</label>
+                    <span class="status-badge status-{{ car.status|lower }}">
+                        {{ car.status }}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {# Modal de confirmation de suppression #}
+    <div class="modal fade" id="deleteCarModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Confirmer la suppression</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    Êtes-vous sûr de vouloir supprimer ce véhicule ? Cette action est irréversible.
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Annuler</button>
+                    <form action="{{ path('admin.car.delete', {id: car.id}) }}" method="POST" style="display: inline;">
+                        <input type="hidden" name="_method" value="DELETE">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ car.id) }}">
+                        <button type="submit" class="btn btn-danger">Confirmer la suppression</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    <script>
+        // Activation des tooltips Bootstrap
+        document.addEventListener('DOMContentLoaded', function() {
+            var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+            var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+                return new bootstrap.Tooltip(tooltipTriggerEl)
+            });
+        });
+    </script>
+{% endblock %}
