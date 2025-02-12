@@ -19,12 +19,15 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Requirement\Requirement;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('admin/car', name: 'admin.car')]
+#[IsGranted('ROLE_MANAGER')]
 class CarController extends AbstractController
 {
 
     private VoitureDisponibiliteService $voitureDisponibiliteService;
+
 
     public function __construct(VoitureDisponibiliteService $voitureDisponibiliteService)
     {
@@ -34,8 +37,9 @@ class CarController extends AbstractController
     #[Route('/', name: '.show')]
     public function index(CarRepository $carRepository): Response
     {
+
         $this->voitureDisponibiliteService->checkCarAvailability();
-        $cars = $carRepository->findAll();
+        $cars = $carRepository->CarByUser($this->getUser());
 
         return $this->render('admin/car/show.html.twig', [
             'cars' => $cars,
@@ -45,8 +49,15 @@ class CarController extends AbstractController
 
 
     #[Route('/details/{id}', name: '.detail')]
-    public function detail($id,CarRepository $carRepository): Response
+    public function detail($id,CarRepository $carRepository,EntityManagerInterface $em): Response
         {
+            $car = $em->getRepository(Car::class)->find($id);
+            $user = $this->getUser();
+
+            if (!$car || $car->getUser() !== $user) {
+                return $this->redirectToRoute("admin.car.show");
+                
+            }
             $car = $carRepository ->find($id);
 
             return $this->render('admin/car/detail.html.twig', [
@@ -62,6 +73,7 @@ class CarController extends AbstractController
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
             $car->setStatus("disponible");
+            $car->setUser($this->getUser());
             $em->persist($car);
             $em->flush();
             $this->addFlash('success', 'La voiture a bien été créée.');
@@ -75,7 +87,15 @@ class CarController extends AbstractController
     }
 
     #[Route('/{id}/edit',name:'.edit',methods:['GET', 'POST'],requirements:['id'=>Requirement::DIGITS])]
-    public function edit(Car $car,Request $request,EntityManagerInterface $em,FormFactoryInterface $formFactory){
+    public function edit(Car $car,Request $request,EntityManagerInterface $em,FormFactoryInterface $formFactory,int $id){
+
+        $car = $em->getRepository(Car::class)->find($id);
+        $user = $this->getUser();
+
+        if (!$car || $car->getUser() !== $user) {
+            return $this->redirectToRoute("admin.car.show");
+            
+        }
         $form=$formFactory->create(CarType::class,$car);
         $form->handleRequest($request);
         if($form->isSubmitted() && $form->isValid()){
@@ -104,7 +124,7 @@ class CarController extends AbstractController
     #[Route('/Avalaible', name: '.Avalaible.show')]
     public function show_Avalibale(CarRepository $carRepository): Response
     {
-        $cars = $carRepository->carAsvailable();
+        $cars = $carRepository->carAsvailable($this->getUser());
 
         return $this->render('admin/car/show.html.twig', [
             'cars' => $cars,
@@ -113,20 +133,6 @@ class CarController extends AbstractController
     }
 
 
-    #[Route('/Avalaible/{id}/edit',name:'.Avalaible.edit',methods:['GET', 'POST'],requirements:['id'=>Requirement::DIGITS])]
-    public function edit_car_avalaible(Car $car,Request $request,EntityManagerInterface $em,FormFactoryInterface $formFactory){
-        $form=$formFactory->create(CarType::class,$car);
-        $form->handleRequest($request);
-        if($form->isSubmitted() && $form->isValid()){
-            $em->flush();
-            $this->addFlash('success', 'voiture modifiee');
-            return $this->redirectToRoute('admin.car.Avalaible.show');
-        }
-        return $this->render('admin/car/CarAvalaible/edit.html.twig',[
-            'car'=>$car,
-            'form'=>$form
-        ]);
-    }
 
     #[Route('/Avalaible/{id}/delete',name:'.Avalaible.delete',methods:['DELETE'],requirements:['id'=>Requirement::DIGITS])]
     public function remove_avalaible_car(Car $car,EntityManagerInterface $em) {
@@ -140,7 +146,7 @@ class CarController extends AbstractController
     #[Route('/InMaintenance', name: '.inmaintenance')]
     public function show_inmaintenance(CarRepository $car): Response
     {
-        $cars = $car->carMaintenance();
+        $cars = $car->carMaintenance($this->getUser());
         
 
         return $this->render('admin/car/show.html.twig', [

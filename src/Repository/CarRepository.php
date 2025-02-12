@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Car;
+use App\Entity\User;
 use DateTimeInterface;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
@@ -41,21 +42,22 @@ class CarRepository extends ServiceEntityRepository
 //            ->getOneOrNullResult()
 //        ;
 //    }
-      public function carAsvailable(){
+      public function carAsvailable(User $user){
         return $this->createQueryBuilder('c')
           ->where('c.status = :available')
+          ->andwhere('c.User = :user')
           ->setParameter('available', 'Disponible')
+          ->setParameter('user', $user)
           ->getQuery()
           ->getResult();
       }
 
-      public function findAvailableCars(DateTimeInterface $startDate, DateTimeInterface $endDate, ?int $excludeBookingId = null)
+      public function findAvailableCars(DateTimeInterface $startDate, DateTimeInterface $endDate, User $user)
       {
           $qb = $this->createQueryBuilder('c')
-              ->where('c.status = :status')
-              ->setParameter('status', 'Disponible');
+              ->where('c.User = :user')
+              ->setParameter('user',$user);
   
-          // Sous-requête pour exclure les voitures déjà réservées
           $qb->andWhere('NOT EXISTS (
                   SELECT b 
                   FROM App\Entity\Booking b 
@@ -70,24 +72,24 @@ class CarRepository extends ServiceEntityRepository
               ->setParameter('endDate', $endDate)
               ->setParameter('cancelledStatus', 'annulee');
   
-          // Exclure la réservation en cours d'édition si nécessaire
-          if ($excludeBookingId) {
-              $qb->andWhere('NOT EXISTS (
-                  SELECT b 
-                  FROM App\Entity\Booking b 
-                  WHERE b.car = c 
-                  AND b.id = :bookingId
-              )')
-              ->setParameter('bookingId', $excludeBookingId);
-          }
+          
   
           return $qb->getQuery()->getResult();
       }
 
-      public function carMaintenance() {
+      public function carMaintenance(User $user) {
         return $this->createQueryBuilder('c')
                     ->where('c.status = :status')
+                    ->andwhere('c.User = :user')
+                    ->setParameter('user', $user)
                     ->setParameter('status', 'En maintenance')
+                    ->getQuery()
+                    ->getResult();
+    }
+    public function CarByUser(User $user) {
+        return $this->createQueryBuilder('c')
+                    ->andwhere('c.User = :user')
+                    ->setParameter('user', $user)
                     ->getQuery()
                     ->getResult();
     }

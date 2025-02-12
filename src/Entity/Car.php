@@ -60,7 +60,7 @@ class Car
     /**
      * @var Collection<int, CarMaintenance>
      */
-    #[ORM\OneToMany(targetEntity: CarMaintenance::class, mappedBy: 'Car')]
+    #[ORM\OneToMany(targetEntity: CarMaintenance::class, mappedBy: 'car')]
     private Collection $carMaintenances;
 
     #[ORM\Column(length: 255, nullable: true)]
@@ -72,6 +72,9 @@ class Car
 
     #[ORM\Column(type: 'datetime', nullable: true)]
     private ?\DateTimeInterface $updatedAt = null;
+
+    #[ORM\ManyToOne(inversedBy: 'cars')]
+    private ?User $User = null;
 
     public function __construct()
     {
@@ -262,6 +265,18 @@ class Car
                 $carMaintenance->setCar(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->User;
+    }
+
+    public function setUser(?User $User): static
+    {
+        $this->User = $User;
 
         return $this;
     }

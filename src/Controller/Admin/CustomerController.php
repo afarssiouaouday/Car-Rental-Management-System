@@ -13,14 +13,16 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Routing\Requirement\Requirement;
+use Symfony\Component\Security\Http\Attribute\IsGranted;
 
 #[Route('/admin/customer', name: 'admin.customer')]
+#[IsGranted('ROLE_MANAGER')]
 class CustomerController extends AbstractController
 {
     #[Route('/', name: '.show')]
     public function show(CustomerRepository $customerRepository): Response
     {
-        $customers = $customerRepository->findAll();
+        $customers = $customerRepository->findByUser($this->getUser());
 
         return $this->render('admin/customer/show.html.twig', [
             "customers" => $customers,
@@ -31,9 +33,13 @@ class CustomerController extends AbstractController
     public function detail($id , CustomerRepository $customerRepository, BookingRepository $bookingRepository): Response
     {
         $customer = $customerRepository->find($id);
+        $user = $this->getUser();
+        if (!$customer || $customer->getUser() !== $user) {
+            return $this->redirectToRoute("admin.customer.show");
+            
+        }
 
-        $reservations = $bookingRepository
-                             ->findBy(['customer' => $customer]);
+        $reservations = $bookingRepository->findBy(['customer' => $customer]);
 
         return $this->render('admin/customer/detail.html.twig', [
             'customer' => $customer,
@@ -48,6 +54,7 @@ class CustomerController extends AbstractController
         $form = $this->createForm(CustomerType::class, $customer);
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
+            $customer->setUser($this->getUser());
             $em->persist($customer);
             $em->flush();
             $this->addFlash('success', 'Le client a bien  été créée.');
@@ -61,7 +68,14 @@ class CustomerController extends AbstractController
     }
 
     #[Route('/{id}/edit',name:'.edit',methods:['GET', 'POST'],requirements:['id'=>Requirement::DIGITS])]
-    public function edit(Customer $customer,Request $request,EntityManagerInterface $em,FormFactoryInterface $formFactory){
+    public function edit(Customer $customer,Request $request,EntityManagerInterface $em,FormFactoryInterface $formFactory,CustomerRepository $customerRepository,int $id){
+
+        $customer = $customerRepository->find($id);
+        $user = $this->getUser();
+        if (!$customer || $customer->getUser() !== $user) {
+            return $this->redirectToRoute("admin.customer.show");
+            
+        }
         $form=$formFactory->create(CustomerType::class,$customer);
         $form->handleRequest($request);
         if($form->isSubmitted() && $form->isValid()){

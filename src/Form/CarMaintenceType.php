@@ -3,6 +3,7 @@ namespace App\Form;
 
 use App\Entity\Car;
 use App\Entity\CarMaintenance;
+use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -12,8 +13,11 @@ use Symfony\Component\OptionsResolver\OptionsResolver;
 
 class CarMaintenceType extends AbstractType
 {
-    public function buildForm(FormBuilderInterface $builder, array $options): void
+    public function buildForm(FormBuilderInterface $builder, array $options ): void
     {
+
+        $user = $options['user']; 
+
         $builder
             ->add('maintenanceDate', null, [
                 'widget' => 'single_text',
@@ -38,6 +42,11 @@ class CarMaintenceType extends AbstractType
                 'class' => Car::class,
                 'choice_label' => 'model', // Display the car model instead of ID
                 'label' => 'Voiture',
+                'query_builder' => function (EntityRepository $er) use ($user) {
+                    return $er->createQueryBuilder('c')
+                        ->where('c.User = :user')
+                        ->setParameter('user', $user);
+                },
             ])
             ->add('save', SubmitType::class, [
                 'label' => 'Enregistrer'
@@ -48,6 +57,7 @@ class CarMaintenceType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => CarMaintenance::class,
+            'user' => null, 
         ]);
     }
 }

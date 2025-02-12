@@ -76,3 +76,19 @@ h1 {
 .text-muted {
     color: #6c757d !important;
 }
+.container{
+    padding-top: 30px ;
+    max-width: 1300px;
+    margin: 0 auto;
+}
+
+.container-form {
+    background-color: red !important;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    margin: 2rem auto; /* Marges en haut/bas et centrage horizontal */
+    max-width: 800px;
+    animation: slideIn var(--transition-speed) ease-in-out;
+}
+

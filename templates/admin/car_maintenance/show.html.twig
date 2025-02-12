@@ -3,73 +3,75 @@
 {% block title %}Tableau de Bord - Gestion des Entretients{% endblock %}
 
 {% block body %}
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h1>Liste des Entretiens des Voitures</h1>
-        <a href="{{ path('admin.carmaintenance.create') }}" class="btn btn-success">
-            <i class="fas fa-wrench"></i> Ajouter un Entretien
-        </a>
-    </div>
-
-    {% if carMaintenances|length > 0 %}
-        <div class="table-responsive">
-            <table class="table table-striped table-bordered table-hover align-middle text-center">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Image</th>
-                        <th>Voiture</th>
-                        <th>Date de Maintenance</th>
-                        <th>Description</th>
-                        <th>Coût</th>
-                        <th>Statut</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for carMaintenance in carMaintenances %}
-                        <tr>
-                            <td>
-                                <img src="{{ asset('uploads/images/' ~ carMaintenance.Car.imageName) }}" 
-                                     alt="Image de la voiture" 
-                                     style="width: 100px; height: auto; border-radius: 8px;">
-                            </td>
-                            <td>{{ carMaintenance.Car.model }}</td>
-                            <td>{{ carMaintenance.maintenancedate | date('Y-m-d H:i') }}</td>
-                            <td>{{ carMaintenance.description }}</td>
-                            <td>{{ carMaintenance.cost }} DH</td>
-                            <td>
-                                <span class="badge 
-                                    {% if carMaintenance.status == 'Terminé' %}bg-success
-                                    {% elseif carMaintenance.status == 'En cours' %}bg-warning
-                                    {% else %}bg-secondary{% endif %}">
-                                    {{ carMaintenance.status }}
-                                </span>
-                            </td>
-                            <td>
-                                <div class="d-flex justify-content-center gap-2">
-                                    <a href="{{ path('admin.carmaintenance.edit', {id: carMaintenance.id}) }}" 
-                                       class="btn btn-sm btn-outline-primary">
-                                        <i class="fas fa-edit"></i> Modifier
-                                    </a>
-                                    <form action="{{ path('admin.carmaintenance.delete', {id: carMaintenance.id}) }}" 
-                                          method="POST" 
-                                          onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet entretien ?');">
-                                        <input type="hidden" name="_method" value="DELETE">
-                                        <button class="btn btn-sm btn-outline-danger">
-                                            <i class="fas fa-trash"></i> Supprimer
-                                        </button>
-                                    </form>
-                                    <a href="{{ path('admin.carmaintenance.detail', {id: carMaintenance.id}) }}" 
-                                       class="btn btn-sm btn-outline-info">
-                                        <i class="fas fa-eye"></i> Détails
-                                    </a>
-                                </div>
-                            </td>
-                        </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h1>Liste des Entretiens des Voitures</h1>
+            <a href="{{ path('admin.carmaintenance.create') }}" class="btn btn-success">
+                <i class="fas fa-wrench"></i> Ajouter un Entretien
+            </a>
         </div>
-    {% else %}
-        <p class="text-center mt-5 text-muted">Aucun entretien de voiture n'a été trouvé.</p>
-    {% endif %}
+
+        {% if carMaintenances|length > 0 %}
+            <div class="table-responsive">
+                <table class="table table-striped table-bordered table-hover align-middle text-center">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Image</th>
+                            <th>Voiture</th>
+                            <th>Date de Maintenance</th>
+                            <th>Description</th>
+                            <th>Coût</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for carMaintenance in carMaintenances %}
+                            <tr>
+                                <td>
+                                    <img src="{{ asset('uploads/images/' ~ carMaintenance.Car.imageName) }}" 
+                                        alt="Image de la voiture" 
+                                        style="width: 100px; height: auto; border-radius: 8px;">
+                                </td>
+                                <td>{{ carMaintenance.Car.model }}</td>
+                                <td>{{ carMaintenance.maintenancedate | date('Y-m-d H:i') }}</td>
+                                <td>{{ carMaintenance.description }}</td>
+                                <td>{{ carMaintenance.cost }} DH</td>
+                                <td>
+                                    <span class="badge 
+                                        {% if carMaintenance.status == 'Terminé' %}bg-success
+                                        {% elseif carMaintenance.status == 'En cours' %}bg-warning
+                                        {% else %}bg-secondary{% endif %}">
+                                        {{ carMaintenance.status }}
+                                    </span>
+                                </td>
+                                <td>
+                                    <div class="d-flex justify-content-center gap-2">
+                                        <a href="{{ path('admin.carmaintenance.edit', {id: carMaintenance.id}) }}" 
+                                        class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-edit"></i> Modifier
+                                        </a>
+                                        <form action="{{ path('admin.carmaintenance.delete', {id: carMaintenance.id}) }}" 
+                                            method="POST" 
+                                            onsubmit="return confirm('Êtes-vous sûr de vouloir supprimer cet entretien ?');">
+                                            <input type="hidden" name="_method" value="DELETE">
+                                            <button class="btn btn-sm btn-outline-danger">
+                                                <i class="fas fa-trash"></i> Supprimer
+                                            </button>
+                                        </form>
+                                        <a href="{{ path('admin.carmaintenance.detail', {id: carMaintenance.id}) }}" 
+                                        class="btn btn-sm btn-outline-info">
+                                            <i class="fas fa-eye"></i> Détails
+                                        </a>
+                                    </div>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <p class="text-center mt-5 text-muted">Aucun entretien de voiture n'a été trouvé.</p>
+        {% endif %}
+    </div>
 {% endblock %}

@@ -1,213 +1,201 @@
 <!DOCTYPE html>
 <html lang="fr">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>{% block title %}Welcome!{% endblock %}</title>
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-        <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
-        <style>
-            :root {
-                --primary-color: #007bff;
-                --secondary-color: #f8f9fa;
-                --text-color: #212529;
-                --hover-color: #0056b3;
-                --transition-speed: 0.3s;
-            }
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}AutoAdmin{% endblock %}</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ asset('css/admin.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    <style>
+        :root {
+            --primary-color: #4361ee;
+            --sidebar-width: 240px;
+            --transition-speed: 0.3s;
+            --success-color: #2ec4b6;
+            --warning-color: #ff9f1c;
+            --danger-color: #e71d36;
+        }
 
-            body {
-                background-color: var(--secondary-color);
-                color: var(--text-color);
-                font-family: 'Arial', sans-serif;
-                margin: 0;
-                padding: 0;
-            }
+        body {
+            display: flex;
+            min-height: 100vh;
+            background-color: #f8f9fa;
+            margin: 0;
+        }
 
-            /* Navbar Styles */
-            .navbar {
-                background-color: var(--primary-color);
+        .sidebar {
+            width: var(--sidebar-width);
+            background: var(--primary-color);
+            padding: 1rem;
+            position: fixed;
+            height: 100vh;
+            transition: transform var(--transition-speed);
+            z-index: 1000;
+        }
+
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            color: white;
+            text-decoration: none;
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .sidebar-brand i {
+            font-size: 1.8rem;
+            margin-right: 12px;
+        }
+
+        .sidebar-nav {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .nav-item {
+            margin-bottom: 0.5rem;
+        }
+
+        .nav-link {
+            display: flex;
+            align-items: center;
+            color: rgba(255, 255, 255, 0.8);
+            padding: 0.8rem 1rem;
+            border-radius: 8px;
+            text-decoration: none;
+            transition: all var(--transition-speed);
+        }
+
+        .nav-link:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .nav-link.active {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+
+        .nav-link i {
+            width: 30px;
+            font-size: 1.2rem;
+            margin-right: 12px;
+        }
+
+        .main-content {
+            flex: 1;
+            margin-left: var(--sidebar-width);
+            padding: 2rem;
+            min-height: 100vh;
+        }
+        .logout{
+            position: absolute;
+            bottom: 7%;
+
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(-100%);
+            }
+            .main-content {
+                margin-left: 0;
                 padding: 1rem;
-                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
             }
-
-            .navbar-brand {
-                font-size: 1.6rem;
-                padding: 0.5rem 1rem;
-                border-radius: 8px;
-                transition: all 0.3s ease;
-                color: white;
-                display: flex;
-                align-items: center;
+            .sidebar.active {
+                transform: translateX(0);
             }
+        }
+    </style>
+    {% block stylesheets %}{% endblock %}
+</head>
+<body>
+    <aside class="sidebar">
+        <a href="{{ path('admin_dashboard') }}" class="sidebar-brand">
+            <i class="fa-solid fa-car-side"></i>
+            <span class="fs-4">AutoAdmin</span>
+        </a>
 
-            .navbar-brand:hover {
-                background: rgba(255, 255, 255, 0.1);
-                color: white;
-            }
-
-            .navbar-brand i {
-                font-size: 1.4rem;
-                margin-right: 10px;
-                transition: transform 0.3s ease;
-            }
-
-            .navbar-brand:hover i {
-                transform: scale(1.1) rotate(5deg);
-            }
-
-            .nav-link {
-                padding: 0.5rem 1rem !important;
-                margin: 0 0.2rem;
-                border-radius: 6px;
-                font-weight: 500;
-                transition: all 0.3s ease;
-                color: white !important;
-            }
-
-            .nav-link:hover {
-                background: rgba(255, 255, 255, 0.1);
-                transform: translateY(-2px);
-            }
-
-            .nav-link i {
-                opacity: 0.9;
-                transition: transform 0.3s ease;
-            }
-
-            .nav-link:hover i {
-                transform: scale(1.1);
-                opacity: 1;
-            }
-
-            @media (max-width: 991px) {
-                .navbar-collapse {
-                    margin-top: 1rem;
-                    padding: 1rem;
-                    background: rgba(0, 0, 0, 0.1);
-                    border-radius: 8px;
-                }
-                
-                .nav-link {
-                    padding: 0.8rem 1rem !important;
-                    margin: 0.2rem 0;
-                }
-            }
-
-            /* Container Styles */
-            .container {
-                background-color: white;
-                border-radius: 10px;
-                box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-                padding: 2rem;
-                margin-top: 2rem;
-                animation: fadeIn var(--transition-speed) ease-in-out;
-            }
-
-            @keyframes fadeIn {
-                from {
-                    opacity: 0;
-                    transform: translateY(10px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-            }
-
-            /* Footer Styles */
-            footer {
-                background-color: var(--primary-color);
-                color: white;
-                text-align: center;
-                padding: 1rem 0;
-                margin-top: 2rem;
-                font-size: 0.9rem;
-                animation: slideUp var(--transition-speed) ease-in-out;
-            }
-
-            @keyframes slideUp {
-                from {
-                    opacity: 0;
-                    transform: translateY(20px);
-                }
-                to {
-                    opacity: 1;
-                    transform: translateY(0);
-                }
-            }
-
-            footer a {
-                color: white;
-                text-decoration: underline;
-                transition: color var(--transition-speed);
-            }
-
-            footer a:hover {
-                color: var(--hover-color);
-            }
-        </style>
-        {% block stylesheets %}{% endblock %}
-    </head>
-    <body>
-        <!-- Enhanced Navbar -->
-        <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #4361ee;">
-            <div class="container-fluid">
-                <!-- Logo and Brand -->
-                <a class="navbar-brand" href="{{ path('admin_dashboard') }}">
-                    <i class="fa-solid fa-car-side"></i> 
-                    <span class="brand-text">AutoAdmin</span>
-                </a>
-
-                <!-- Mobile Toggle Button -->
-                <button class="navbar-toggler" type="button" 
-                        data-bs-toggle="collapse" 
-                        data-bs-target="#navbarNav" 
-                        aria-controls="navbarNav" 
-                        aria-expanded="false" 
-                        aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-
-                <!-- Navigation Items -->
-                <div class="collapse navbar-collapse" id="navbarNav">
-                    <ul class="navbar-nav ms-auto">
+        <nav>
+            <ul class="sidebar-nav">
+                <li class="nav-item">
+                    <a href="{{ path('admin_dashboard') }}" class="nav-link {{ app.request.get('_route') == 'admin_dashboard' ? 'active' }}">
+                        <i class="fas fa-home"></i>
+                        Dashboard
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ path('admin.car.show') }}" class="nav-link">
+                        <i class="fa-solid fa-car-rear"></i>
+                        Voitures
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ path('admin.customer.show') }}" class="nav-link">
+                        <i class="fa-solid fa-users"></i>
+                        Clients
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#reservationsSubmenu" class="nav-link" data-bs-toggle="collapse" aria-expanded="false">
+                        <i class="fa-solid fa-calendar-check"></i>
+                        Réservations
+                    </a>
+                    <ul class="collapse list-unstyled ps-3" id="reservationsSubmenu">
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ path('admin.car.show') }}">
-                                <i class="fa-solid fa-car-rear me-1"></i>Voitures
+                            <a href="{{ path('admin_booking_show') }}" class="nav-link">
+                                Réservations
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ path('admin.customer.show') }}">
-                                <i class="fa-solid fa-users me-1"></i>Clients
+                            <a href="{{ path('admin_booking_show_upcomingbookings') }}" class="nav-link">
+                                À venir
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ path('admin_booking_show') }}">
-                                <i class="fa-solid fa-calendar-check me-1"></i>Réservations
+                            <a href="{{ path('admin_booking_show_nowbookings') }}" class="nav-link">
+                                Actuelles
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="{{ path('admin_payment_show') }}">
-                                <i class="fa-solid fa-credit-card me-1"></i>Paiements
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link" href="{{ path('admin.carmaintenance.show') }}">
-                                <i class="fa-solid fa-wrench me-1"></i>Maintenance
+                            <a href="{{ path('admin_booking_show_pastbookings') }}" class="nav-link">
+                                Passées
                             </a>
                         </li>
                     </ul>
-                </div>
-            </div>
+                </li>
+                <li class="nav-item">
+                    <a href="{{ path('admin.carmaintenance.show') }}" class="nav-link">
+                        <i class="fa-solid fa-wrench"></i>
+                        Maintenance
+                    </a>
+                </li>
+            </ul>
+            <a class="nav-link text-danger logout" href="{{ path('app_logout') }}">
+                        <i class="fas fa-sign-out-alt me-2"></i>
+                        Déconnexion
+            </a>
         </nav>
+    </aside>
 
-        <!-- Contenu principal -->
-        <div class="container">
-            {% include 'partials/flash.html.twig' %}
-            {% block body %}{% endblock %}
-        </div>
+    <main class="main-content">
+        {% include 'partials/flash.html.twig' %}
+        {% block body %}{% endblock %}
+    </main>
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    </body>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.querySelectorAll('.nav-link').forEach(link => {
+            if(link.href === window.location.href) {
+                link.classList.add('active');
+            }
+        });
+    </script>
+    {% block javascripts %}{% endblock %}
+</body>
 </html>

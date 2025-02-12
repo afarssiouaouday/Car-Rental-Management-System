@@ -38,8 +38,6 @@ class Booking
     #[ORM\Column(length: 255)]
     private ?string $status = null;
 
-    #[ORM\OneToOne(mappedBy: 'booking', cascade: ['persist', 'remove'])]
-    private ?Payment $Payment = null;
 
     public function getId(): ?int
     {
@@ -118,15 +116,5 @@ class Booking
         return $this;
     }
 
-    public function getPayment(): ?Payment
-    {
-        return $this->Payment;
-    }
-
-    public function setPayment(?Payment $Payment): static
-    {
-        $this->Payment = $Payment;
-
-        return $this;
-    }
+   
 }

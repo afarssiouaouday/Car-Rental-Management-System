@@ -1,8 +1,11 @@
-{% extends 'base.html.twig' %}
+{% extends 'admin/base.html.twig' %}
+
 {% block title %}Modifier l'entretien de la voiture {{ carMaintenance.Car.model }}{% endblock %}
 {% block body %}
     <div style="margin-bottom: 40px;text-align:center;margin-bottom: 20px">
-        <h1 >modifier voiture</h1>
+        <h1 >modifier l'entretien de voiture</h1>
     </div>
-    {{form(form)}}
+    <div class="container-form">
+        {{form(form)}}
+    </div>
 {% endblock %}

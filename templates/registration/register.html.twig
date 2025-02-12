@@ -1,0 +1,32 @@
+{% extends 'admin/base2.html.twig' %}
+
+{% block title %}Register{% endblock %}
+
+{% block body %}
+    {% for flash_error in app.flashes('verify_email_error') %}
+        <div class="alert alert-danger" role="alert">{{ flash_error }}</div>
+    {% endfor %}
+
+    <h3>Créer un compte</h3>
+    <hr style="font-size:2px;">
+
+    {{ form_errors(registrationForm) }}
+
+    {{ form_start(registrationForm, {'attr': {'class': 'needs-validation'}}) }}
+        
+    {{ form_row(registrationForm.username, {'attr': {'class': 'form-control'}}) }}
+    {{ form_row(registrationForm.email, {'attr': {'class': 'form-control'}}) }}
+    {{ form_row(registrationForm.plainPassword, {'attr': {'class': 'form-control'}}) }}
+    {{ form_row(registrationForm.agreeTerms, {'attr': {'class': 'form-check-input'}}) }}
+
+    <div class="d-flex justify-content-center">
+        <button type="submit" class="btn mt-3" style="background-color: #4ca42c; color:#fff;">S'inscrire</button>
+    </div>
+
+    {{ form_end(registrationForm) }}
+    
+
+    <a href="{{ path('app_login') }}" class="text-primary text-decoration-none login" >
+        <h6 style="text-align: center;margin-top:10px;">Vous avez déjà un compte ?</h6>
+    </a>
+{% endblock %}

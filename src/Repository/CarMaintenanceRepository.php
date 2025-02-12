@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\CarMaintenance;
+use App\Entity\User;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
@@ -48,6 +49,16 @@ class CarMaintenanceRepository extends ServiceEntityRepository
             ->addSelect('c')
             ->where('cm.status = :status')
             ->setParameter('status', 'En cours')
+            ->getQuery()
+            ->getResult();
+    }
+
+    public function findByUser(User $user)
+    {
+        return $this->createQueryBuilder('cm')
+            ->innerJoin('cm.car', 'c')
+            ->where('c.User = :user')
+            ->setParameter('user', $user)
             ->getQuery()
             ->getResult();
     }

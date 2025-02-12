@@ -6,6 +6,7 @@ use App\Entity\Booking;
 use App\Entity\Car;
 use App\Entity\Customer;
 use Doctrine\DBAL\Types\DateTimeImmutableType;
+use Doctrine\ORM\EntityRepository;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
@@ -17,6 +18,9 @@ class BookingType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options): void
     {
+
+        $user = $options['user']; 
+
         $builder
             ->add('status', ChoiceType::class, [
                 'choices' => [
@@ -31,6 +35,11 @@ class BookingType extends AbstractType
                 'class' => Customer::class,
                 'choice_label' => 'name',
                 'label' => 'Client', 
+                'query_builder' => function (EntityRepository $er) use ($user) {
+                    return $er->createQueryBuilder('c')
+                        ->where('c.User = :user')
+                        ->setParameter('user', $user);
+                },
             ])
             ->add('amount_paid', null, [
                 'label' => 'Montant payé', 
@@ -45,6 +54,7 @@ class BookingType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Booking::class,
+            'user' => null, 
         ]);
     }
 }

@@ -262,6 +262,9 @@
             "./templates/base.html.twig"
         ]
     },
+    "symfony/ux-chartjs": {
+        "version": "v2.22.1"
+    },
     "symfony/ux-turbo": {
         "version": "2.22",
         "recipe": {
@@ -311,6 +314,9 @@
             "./package.json",
             "./webpack.config.js"
         ]
+    },
+    "symfonycasts/verify-email-bundle": {
+        "version": "v1.17.3"
     },
     "twig/extra-bundle": {
         "version": "v3.17.0"

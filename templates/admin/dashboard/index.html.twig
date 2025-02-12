@@ -1,10 +1,12 @@
 {% extends 'admin/base.html.twig' %}
 
-{% block title %}Tableau de Bord | Gestion de Location de Voitures{% endblock %}
+{% block title %}Tableau de Bord | AutoAdmin{% endblock %}
 
 {% block stylesheets %}
-<link href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" rel="stylesheet">
+{{ parent() }}
 <style>
+
+
     /* Variables CSS pour une meilleure maintenance */
     :root {
         --primary-color: #4361ee;
@@ -15,52 +17,9 @@
         --transition-speed: 0.3s;
     }
 
-    /* Styles généraux */
-    body {
-        background-color: #f8f9fa;
-    }
+    
 
-    .dashboard-container {
-        padding: 1rem;
-        max-width: 1400px;
-        margin: 0 auto;
-    }
-
-    /* Style des cartes amélioré */
-    .dashboard-card {
-        transition: all var(--transition-speed) ease;
-        border: none;
-        border-radius: 15px;
-        overflow: hidden;
-        height: 100%;
-    }
-
-    .dashboard-card:hover {
-        transform: translateY(-5px);
-        box-shadow: var(--card-shadow);
-    }
-
-    /* Animation des cartes */
-    .card-animate {
-        animation: fadeInUp 0.6s ease-out;
-        animation-fill-mode: both;
-    }
-
-    /* Style des statistiques */
-    .stat-card {
-        position: relative;
-        padding: 1.5rem;
-    }
-
-    .stat-card::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 0;
-        height: 100%;
-        width: 4px;
-        background-color: rgba(255, 255, 255, 0.3);
-    }
+    
 
     .stat-value {
         font-size: 2.5rem;
@@ -83,21 +42,6 @@
         opacity: 0.2;
     }
 
-    /* Style des boutons amélioré */
-    .btn-dashboard {
-        padding: 0.6rem 1.2rem;
-        border-radius: 8px;
-        font-weight: 500;
-        transition: all var(--transition-speed);
-        background-color: rgba(255, 255, 255, 0.1);
-        color: white;
-        border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
-    .btn-dashboard:hover {
-        background-color: rgba(255, 255, 255, 0.2);
-        transform: translateX(5px);
-    }
 
     /* Couleurs des cartes */
     .bg-custom-primary { background-color: var(--primary-color); }
@@ -105,157 +49,205 @@
     .bg-custom-warning { background-color: var(--warning-color); }
     .bg-custom-danger { background-color: var(--danger-color); }
 
-    /* Media queries pour la responsive */
-    @media (max-width: 768px) {
-        .dashboard-container {
-            padding: 1rem;
-        }
-        
-        .stat-value {
-            font-size: 2rem;
-        }
+    
+
+
+
+
+
+    .dashboard-header {
+        background: white;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 25px rgba(0, 0, 0, 0.05);
     }
+
+    .chart-container {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 25px rgba(0, 0, 0, 0.05);
+        min-height: 400px;
+    }
+
+    .recent-bookings {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 25px rgba(0, 0, 0, 0.05);
+    }
+
+    .stat-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--primary-color);
+    }
+
+    .dashboard-container {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .dashboard-card {
+        transition: all 0.3s ease;
+        border: none;
+        border-radius: 15px;
+        overflow: hidden;
+        height: 100%;
+        background: linear-gradient(135deg, var(--primary-color) 0%, #3a0ca3 100%);
+        color: white;
+    }
+
+    .stat-card {
+        padding: 1.5rem;
+        position: relative;
+    }
+
+    
+
+    
+
+    .status-active { background: #e3f2fd; color: #1976d2; }
+    .status-completed { background: #e8f5e9; color: #2e7d32; }
+    .status-pending { background: #fff3e0; color: #ef6c00; }
 </style>
 {% endblock %}
 
 {% block body %}
 <div class="dashboard-container">
-    {# En-tête du tableau de bord #}
-    <header class="mb-4">
-        <h1 class="display-4 mb-3">Tableau de Bord</h1>
-        <p class="text-muted">Bienvenue sur votre espace d'administration</p>
+    <header class="d-flex justify-content-between align-items-center mb-5">
+        <div>
+            <h1 class="display-4 fw-bold mb-3">📊 Tableau de Bord</h1>
+            <div class="row g-3">
+            <div class="col-auto">
+                <a href="{{ path('admin.car.show') }}" class="btn btn-primary px-4 py-2">
+                    🚗 Voitures : <span class="fw-bold">{{ carsCount }}</span>
+                </a>
+            </div>
+            <div class="col-auto">
+                <a href="{{ path('admin.car.Avalaible.show') }}" class="btn btn-success px-4 py-2">
+                    ✅ Disponibles : <span class="fw-bold">{{ carAvailableCount }}</span>
+                </a>
+            </div>
+            <div class="col-auto">
+                <a href="{{ path('admin.car.inmaintenance') }}" class="btn btn-warning px-4 py-2">
+                    🛠️ Maintenance : <span class="fw-bold">{{ carsMaintenancesCount }}</span>
+                </a>
+            </div>
+        </div>
+        </div>
+        <div class="dropdown">
+            <button class="btn btn-primary px-4 py-2" type="button" data-bs-toggle="dropdown">
+                <i class="fas fa-user-circle me-2"></i>Mon Compte
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end">
+                <li><a class="dropdown-item" href="{{path('admin_account_show')}}"><i class="fas fa-user me-2"></i>Profil</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item text-danger" href="{{ path('app_logout') }}"><i class="fas fa-sign-out-alt me-2"></i>Déconnexion</a></li>
+            </ul>
+        </div>
     </header>
 
-    {# Grille des statistiques #}
-    <div class="row g-4">
-    {# Voitures Totales #}
-    <div class="col-12 col-md-4">
-        <div class="dashboard-card card-animate" style="animation-delay: 0.1s">
-            <div class="stat-card bg-custom-primary text-white">
-                <div class="stat-icon">
-                    <i class="fas fa-car"></i>
-                </div>
-                <h6 class="stat-title">Voitures Totales</h6>
-                <div class="stat-value">{{ carsCount }}</div>
-                <div class="mt-3">
-                    <a href="{{ path('admin.car.show') }}" class="btn btn-dashboard">
-                        Détails <i class="fas fa-arrow-right ms-2"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
 
-    {# Voitures Disponibles #}
-    <div class="col-12 col-md-4">
-        <div class="dashboard-card card-animate" style="animation-delay: 0.2s">
-            <div class="stat-card bg-custom-success text-white">
-                <div class="stat-icon">
-                    <i class="fas fa-car-side"></i>
-                </div>
-                <h6 class="stat-title">Disponibles</h6>
-                <div class="stat-value">{{ carAvailableCount }}</div>
-                <div class="mt-3">
-                    <a href="{{ path('admin.car.Avalaible.show') }}" class="btn btn-dashboard">
-                        Détails <i class="fas fa-arrow-right ms-2"></i>
-                    </a>
+        <div class="row g-4">
+            <div class="col-12 col-lg-8">
+                <div class="chart-container">
+                    <h4 class="mb-4"><i class="fas fa-chart-line me-2"></i>Activité des Locations</h4>
+                    <canvas id="rentalChart"></canvas>
                 </div>
             </div>
-        </div>
-    </div>
 
-    {# Maintenance #}
-    <div class="col-12 col-md-4">
-        <div class="dashboard-card card-animate" style="animation-delay: 0.3s">
-            <div class="stat-card bg-custom-warning text-white">
-                <div class="stat-icon">
-                    <i class="fas fa-tools"></i>
+            <div class="col-12 col-lg-4">
+                <div class="chart-container">
+                    <div class="dashboard-card card-animate" style="animation-delay: 0.6s">
+                    <div class="stat-card bg-custom-primary text-white">
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar-plus"></i>
+                        </div>
+                        
+                        <h6 class="stat-title">Réservations à venir</h6>
+                        <div class="stat-value">{{ upcomingBookingscount }}</div>
+                        
+                    </div>
                 </div>
-                <h6 class="stat-title">En Maintenance</h6>
-                <div class="stat-value">{{ carsMaintenancesCount }}</div>
-                <div class="mt-3">
-                    <a href="{{ path('admin.car.inmaintenance') }}" class="btn btn-dashboard">
-                        Détails <i class="fas fa-arrow-right ms-2"></i>
-                    </a>
+                <div class="dashboard-card card-animate mt-1" style="animation-delay: 0.6s">
+                    <div class="stat-card bg-custom-success text-white">
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar-check"></i>
+                        </div>
+                        <h6 class="stat-title">Réservations actuelles</h6>
+                        <div class="stat-value">{{ nowBookingsCount }}</div>
+                        
+                    </div>
                 </div>
-            </div>
-        </div>
-    </div>
-
-    {# Réservations à venir #}
-    <div class="col-12 col-md-4">
-        <div class="dashboard-card card-animate" style="animation-delay: 0.4s">
-            <div class="stat-card bg-custom-primary text-white">
-                <div class="stat-icon">
-                    <i class="fas fa-calendar-plus"></i>
+                <div class="dashboard-card card-animate mt-1" style="animation-delay: 0.6s">
+                    <div class="stat-card bg-custom-danger text-white">
+                        <div class="stat-icon">
+                            <i class="fas fa-calendar-times"></i>
+                        </div>
+                        <h6 class="stat-title">Réservations passées</h6>
+                        <div class="stat-value">{{ pastBookingsCount }}</div>
+                        
+                    </div>
                 </div>
-                <h6 class="stat-title">Réservations à venir</h6>
-                <div class="stat-value">{{ upcomingBookingscount }}</div>
-                <div class="mt-3">
-                    <a href="{{ path('admin_booking_show_upcomingbookings') }}" class="btn btn-dashboard">
-                        Détails <i class="fas fa-arrow-right ms-2"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {# Réservations actuelles #}
-    <div class="col-12 col-md-4">
-        <div class="dashboard-card card-animate" style="animation-delay: 0.5s">
-            <div class="stat-card bg-custom-success text-white">
-                <div class="stat-icon">
-                    <i class="fas fa-calendar-check"></i>
-                </div>
-                <h6 class="stat-title">Réservations actuelles</h6>
-                <div class="stat-value">{{ nowBookingsCount }}</div>
-                <div class="mt-3">
-                    <a href="{{ path('admin_booking_show_nowbookings') }}" class="btn btn-dashboard">
-                        Détails <i class="fas fa-arrow-right ms-2"></i>
-                    </a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    {# Réservations passées #}
-    <div class="col-12 col-md-4">
-        <div class="dashboard-card card-animate" style="animation-delay: 0.6s">
-            <div class="stat-card bg-custom-danger text-white">
-                <div class="stat-icon">
-                    <i class="fas fa-calendar-times"></i>
-                </div>
-                <h6 class="stat-title">Réservations passées</h6>
-                <div class="stat-value">{{ pastBookingsCount }}</div>
-                <div class="mt-3">
-                    <a href="{{ path('admin_booking_show_pastbookings') }}" class="btn btn-dashboard">
-                        Détails <i class="fas fa-arrow-right ms-2"></i>
-                    </a>
-                </div>
-            </div>
         </div>
     </div>
 </div>
-
-</div>
+{% endblock %}
 
 {% block javascripts %}
+{{ parent() }}
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Animation des cartes au chargement
-    const cards = document.querySelectorAll('.dashboard-card');
-    cards.forEach(card => {
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    card.classList.add('animate_animated', 'animate_fadeInUp');
-                }
-            });
+    document.addEventListener('DOMContentLoaded', function() {
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('animate__fadeInUp');
+            }
         });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.dashboard-card').forEach(card => {
         observer.observe(card);
+    });
+});
+document.addEventListener('DOMContentLoaded', function() {
+    // Données dynamiques
+    const chartData = {{ chartData|json_encode|raw }};
+
+    // Graphique des locations
+    new Chart(document.getElementById('rentalChart'), {
+    type: 'line',
+    data: {
+        labels: chartData.months,
+        datasets: [{
+            label: 'Reservations',
+            data: chartData.rentals,
+            borderColor: '#4361ee',
+            tension: 0.4,
+            fill: true
+        }]
+    },
+        options: {
+            scales: {
+                y: {
+                    min: 0, 
+                    ticks: {
+                        stepSize: 1, 
+                        callback: function(value) {
+                            return Number(value).toFixed(0); 
+                        }
+                    }
+                }
+            }
+        }
     });
 });
 </script>
 {% endblock %}
 
-{% endblock %}
+
+
+
