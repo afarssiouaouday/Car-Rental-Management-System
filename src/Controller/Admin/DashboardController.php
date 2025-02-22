@@ -8,6 +8,7 @@ use App\Repository\BookingRepository;
 use App\Repository\CarMaintenanceRepository;
 use App\Repository\CarRepository;
 use App\Repository\PaymentRepository;
+use App\Service\RoleCheckerService;
 use App\Service\VoitureDisponibiliteService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -34,16 +35,28 @@ class DashboardController extends AbstractController
     
     }
 
+    #[Route('/verify', name: 'app_home')]
+    public function verify(): Response{
+        return $this->redirect('/login');
+    }
+
     #[Route('/admin/dashboard', name: 'admin_dashboard')]
-    #[IsGranted('ROLE_MANAGER')]
     public function index(
         CarRepository $carRepository,
         PaymentRepository $paymentRepository,
         BookingRepository $bookingRepository,
-        CarMaintenanceRepository $carMaintenanceRepository
+        CarMaintenanceRepository $carMaintenanceRepository,
+        RoleCheckerService $roleChecker
     ): Response
     {
-        
+
+
+        $redirect = $roleChecker->checkManagerRole();
+        if ($redirect) {
+            return $redirect; // Redirige si l'utilisateur n'a pas le bon rôle
+        }
+
+        if($this->getUser()->getRoles())
         $this->voitureDisponibiliteService->checkCarAvailability();
         
         $today = new \DateTime();

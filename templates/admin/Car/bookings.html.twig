@@ -27,7 +27,7 @@
                 Réservations pour {{ car.model }}
             </h1>
             <p class="text-center text-muted">
-                Immatriculation : {{ car.registration|default('N/A') }} | 
+                Immatriculation : {{ car.licenseplate|default('N/A') }} | 
                 Nombre total de réservations : {{ bookings|length }}
             </p>
         </header>

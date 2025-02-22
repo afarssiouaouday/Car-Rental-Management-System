@@ -1,32 +1,32 @@
-
-###> symfony/framework-bundle ###
-/.env.local
-/.env.local.php
-/.env.*.local
-/config/secrets/prod/prod.decrypt.private.php
-/public/bundles/
+# Symfony
 /var/
 /vendor/
-###< symfony/framework-bundle ###
-
-###> phpunit/phpunit ###
-/phpunit.xml
-.phpunit.result.cache
-###< phpunit/phpunit ###
-
-###> symfony/phpunit-bridge ###
-.phpunit.result.cache
-/phpunit.xml
-###< symfony/phpunit-bridge ###
-
-###> symfony/asset-mapper ###
-/public/assets/
-/assets/vendor/
-###< symfony/asset-mapper ###
-
-###> symfony/webpack-encore-bundle ###
-/node_modules/
+/.env.local
+/.env.*.local
 /public/build/
-npm-debug.log
-yarn-error.log
-###< symfony/webpack-encore-bundle ###
+
+# Ignore the cache and logs
+/var/cache/
+/var/log/
+/var/sessions/
+
+# IDE files
+/.idea/
+/.vscode/
+/*.iml
+
+# Node modules (if applicable)
+node_modules/
+
+# Composer
+/composer.lock
+
+# Ignore temporary files
+.DS_Store
+Thumbs.db
+
+# Ignore system files
+*.swp
+*.swo
+/public/uploads
+

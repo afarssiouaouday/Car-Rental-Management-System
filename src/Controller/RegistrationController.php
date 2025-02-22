@@ -43,7 +43,7 @@ class RegistrationController extends AbstractController
             // encode the plain password
             $user->setPassword($userPasswordHasher->hashPassword($user, $plainPassword));
             $user->setRegistrationDate(new \DateTimeImmutable());
-            $user->setRoles(["ROLE_MANAGER"]);
+            // $user->setRoles(["ROLE_MANAGER"]);
 
             $entityManager->persist($user);
             $entityManager->flush();
@@ -73,7 +73,10 @@ class RegistrationController extends AbstractController
     }
 
     #[Route('/verify/email', name: 'app_verify_email')]
-    public function verifyUserEmail(Request $request, TranslatorInterface $translator): Response
+    public function verifyUserEmail(
+        Request $request, 
+        TranslatorInterface $translator,
+        EntityManagerInterface $entityManager): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
@@ -82,6 +85,8 @@ class RegistrationController extends AbstractController
             /** @var User $user */
             $user = $this->getUser();
             $this->emailVerifier->handleEmailConfirmation($request, $user);
+            $user->setRoles(["ROLE_MANAGER"]);
+            $entityManager->flush();
         } catch (VerifyEmailExceptionInterface $exception) {
             $this->addFlash('verify_email_error', $translator->trans($exception->getReason(), [], 'VerifyEmailBundle'));
 
